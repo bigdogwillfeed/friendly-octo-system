@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using C5;
 using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
@@ -71,24 +71,26 @@ namespace FriendlyOctoSystem
             return (Sort(s) == Sort(Randomizer(s))).ToProperty();
         }
 
-        [Fact]
-        public void Many_Randomizations_Returns_Many_Different_Values()
+        [Property]
+        public Property Many_Randomizations_Returns_Many_Different_Values(char[] chars)
         {
-            var s = "abcdefghij";
+            var s = UniqueString(chars);
             var uniqueShuffles = new HashSet<string>();
             for (var i = 0; i < 100; i++) uniqueShuffles.Add(Randomizer(s));
-            // super conservatively assume 95% of shuffles will be unique (There's a 99% chance to choose 100 unique from 3628800)
-            Assert.True(95 <= uniqueShuffles.Count);
+            // conservatively assume 99% of shuffles will be unique
+            // There's a 99.8% chance to choose 100 unique from a string of 10 unique characters
+            return (99 <= uniqueShuffles.Count).When(s.Length >= 10);
         }
 
         private string Sort(string s) => string.IsNullOrEmpty(s) ? s : new string(s.ToCharArray().OrderBy(c => c).ToArray());
+        private string UniqueString(char[] chars) => new string(new HashSet<char>(chars).ToArray());
 
         private static string ReferenceRandomizer(string s)
         {
             if (string.IsNullOrEmpty(s)) return s;
 
             // use C5 shuffle to start
-            var chars = new ArrayList<char>(s.Length);
+            var chars = new C5.ArrayList<char>(s.Length);
             chars.AddAll(s.ToCharArray());
             chars.Shuffle();
 
