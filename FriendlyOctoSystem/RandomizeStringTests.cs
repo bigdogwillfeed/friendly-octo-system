@@ -14,6 +14,14 @@ namespace FriendlyOctoSystem
         {
             public Given_A_Fisher_Yates_Shuffle() : base(FisherYates) { }
 
+            /*
+             * As far as I've read, this is kind of THE way to shuffle things
+             * because it's slim on memory use and O(n).
+             * However, because System.Random seeds using the system time
+             * it's not suitable for any situation where the shuffled
+             * order should not be predictable. (You could mitigate this
+             * by using a more random generator from System.Security.Cryptography)
+             */
             private static string FisherYates(string s)
             {
                 if (string.IsNullOrEmpty(s)) return s;
@@ -35,6 +43,17 @@ namespace FriendlyOctoSystem
         {
             public Given_A_Sort_Shuffle() : base(SortShuffle) { }
 
+            /*
+             * Using a random value for the sort comparison is, IMO,
+             * a little bit more clever than is worth it. It takes
+             * some thought for me to convince myself it's even stable
+             * (the key selector function is only executed once per item)
+             * 
+             * This implementation is a one-liner and less FORTRAN-looking,
+             * but the main reason you'd want to use it is the improved
+             * randomness (both less-predictable and it's not biased)
+             * It's O(n log n) assuming OrderBy uses quicksort
+             */
             private static string SortShuffle(string s)
             {
                 if (string.IsNullOrEmpty(s)) return s;
